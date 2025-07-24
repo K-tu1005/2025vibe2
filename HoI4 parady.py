@@ -7,7 +7,7 @@
 # history/countries/KOR - Korea.txt 제거됨
 
 # 3. 서울 지역 설정 (일본 소유)
-history/states/386 - Seoul.txt
+#history/states/386 - Seoul.txt
 state = {
   id = 386
   name = "STATE_SEOUL"
@@ -25,7 +25,7 @@ state = {
 # common/national_focus/KOR.txt 제거됨
 
 # 5. 2차 대전 세력
-common/factions/00_factions.txt
+#common/factions/00_factions.txt
 faction = {
   name = "Allies"
   icon = GFX_faction_allies
@@ -42,7 +42,7 @@ faction = {
 }
 
 # 6. 2차 대전 시작 이벤트
-events/ww2_start.txt
+#events/ww2_start.txt
 country_event = {
   id = ww2.1
   title = "The World at War"
@@ -63,7 +63,7 @@ country_event = {
 }
 
 # 7. 2차 대전 관련 결정
-common/decisions/ww2_decisions.txt
+#common/decisions/ww2_decisions.txt
 decision = {
   name = "Mobilize for War"
   visibility = { has_government = democratic }
