@@ -10,7 +10,7 @@
 #history/states/386 - Seoul.txt
 state = {
   id == 386:
-  name == "STATE_SEOUL"
+  name == "STATE_SEOUL":
   manpower = 300000
   owner = JAP
   add_core_of = JAP
