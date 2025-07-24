@@ -12,14 +12,10 @@ st.write("Click the mole before it disappears!")
 GRID_SIZE = 3
 GAME_DURATION = 20  # seconds
 MOLE_DURATION = 1.0  # seconds per mole
-MOLE_IMAGE_PATH = "mole.png"  # 이미지 경로
+MOLE_IMAGE_PATH = "mole.png"  # 이미지 파일 이름
 
-# 이미지 로딩 여부 확인
-if os.path.exists(MOLE_IMAGE_PATH):
-    mole_image = MOLE_IMAGE_PATH
-else:
-    st.warning("⚠️ mole.png 이미지가 없어요! 대신 이모지를 사용합니다.")
-    mole_image = None  # 대체 처리
+# 이미지 확인
+use_image = os.path.exists(MOLE_IMAGE_PATH)
 
 # 세션 상태 초기화
 if "game_running" not in st.session_state:
@@ -50,7 +46,7 @@ def end_game():
     if current_score > st.session_state.high_score:
         st.session_state.high_score = current_score
 
-# 시작 버튼
+# 게임 시작 버튼
 if not st.session_state.game_running:
     if st.button("🎮 Start Game"):
         start_game()
@@ -75,19 +71,15 @@ if st.session_state.game_running:
         for i in range(GRID_SIZE):
             cols = st.columns(GRID_SIZE)
             for j in range(GRID_SIZE):
-                if (i, j) == st.session_state.mole_position:
-                    with cols[j]:
-                        if mole_image:
-                            if st.button(" ", key=f"mole-{i}-{j}"):
-                                st.session_state.score += 1
-                                st.session_state.last_mole_time = 0.0
-                            st.image(mole_image, width=100)
-                        else:
-                            if st.button("🐹", key=f"mole-{i}-{j}"):
-                                st.session_state.score += 1
-                                st.session_state.last_mole_time = 0.0
-                else:
-                    cols[j].button(" ", key=f"empty-{i}-{j}")
+                with cols[j]:
+                    if (i, j) == st.session_state.mole_position:
+                        if st.button("Click!", key=f"mole-{i}-{j}"):
+                            st.session_state.score += 1
+                            st.session_state.last_mole_time = 0.0
+                        if use_image:
+                            st.image(MOLE_IMAGE_PATH, width=100)
+                    else:
+                        st.button(" ", key=f"empty-{i}-{j}")
     else:
         # 게임 종료
         end_game()
