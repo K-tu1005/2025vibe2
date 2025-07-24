@@ -5,15 +5,15 @@ import os
 
 # 설정
 GRID_SIZE = 3
-GAME_DURATION = 20  # seconds
-MOLE_DURATION = 1.0  # seconds
-MOLE_IMAGE = "mole.png"  # 두더지 이미지 파일 (같은 폴더에 있어야 함)
+GAME_DURATION = 20
+MOLE_DURATION = 1.0
+MOLE_IMAGE = "mole.png"
+MOLE_IMAGE_SIZE = 100  # px, 이미지와 버튼 크기를 일치시킴
 
-st.set_page_config(page_title="Whack-a-Mole", page_icon="🐹")
+st.set_page_config(page_title="Whack-a-Mole", page_icon="🐹", layout="centered")
 st.title("🎯 Whack-a-Mole")
-st.caption("Click the mole as fast as you can!")
 
-# 이미지 확인
+# 이미지 파일 확인
 if not os.path.exists(MOLE_IMAGE):
     st.warning("⚠️ mole.png 파일이 프로젝트 폴더에 없습니다!")
     st.stop()
@@ -28,7 +28,6 @@ if "game_running" not in st.session_state:
     st.session_state.high_score = 0
     st.session_state.score_history = []
 
-# 게임 시작 함수
 def start_game():
     st.session_state.game_running = True
     st.session_state.score = 0
@@ -39,7 +38,6 @@ def start_game():
         random.randint(0, GRID_SIZE - 1)
     )
 
-# 게임 종료 함수
 def end_game():
     st.session_state.game_running = False
     final_score = st.session_state.score
@@ -47,12 +45,10 @@ def end_game():
     if final_score > st.session_state.high_score:
         st.session_state.high_score = final_score
 
-# 게임 시작 버튼
 if not st.session_state.game_running:
     if st.button("🎮 Start Game"):
         start_game()
 
-# 게임 실행 중
 if st.session_state.game_running:
     elapsed = time.time() - st.session_state.start_time
     remaining = int(GAME_DURATION - elapsed)
@@ -61,7 +57,7 @@ if st.session_state.game_running:
         st.markdown(f"⏱️ **Time Left:** `{remaining}` seconds")
         st.markdown(f"🏹 **Score:** `{st.session_state.score}`")
 
-        # 일정 시간마다 두더지 위치 변경
+        # 두더지 위치 갱신
         if time.time() - st.session_state.last_mole_time > MOLE_DURATION:
             st.session_state.mole_position = (
                 random.randint(0, GRID_SIZE - 1),
@@ -69,18 +65,24 @@ if st.session_state.game_running:
             )
             st.session_state.last_mole_time = time.time()
 
-        # 그리드 생성
+        # 게임판 그리드
         for i in range(GRID_SIZE):
             cols = st.columns(GRID_SIZE)
             for j in range(GRID_SIZE):
                 with cols[j]:
                     if (i, j) == st.session_state.mole_position:
-                        if st.button("", key=f"mole-{i}-{j}"):
+                        # 두더지 클릭 이미지
+                        clicked = st.button(
+                            label="",
+                            key=f"mole-{i}-{j}"
+                        )
+                        st.image(MOLE_IMAGE, width=MOLE_IMAGE_SIZE)
+
+                        if clicked:
                             st.session_state.score += 1
                             st.session_state.last_mole_time = 0
-                        st.image(MOLE_IMAGE, use_column_width=True)
                     else:
-                        st.button(" ", key=f"empty-{i}-{j}")
+                        st.empty()  # 빈칸은 아무것도 없음
 
     else:
         end_game()
