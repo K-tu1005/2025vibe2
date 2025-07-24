@@ -9,7 +9,7 @@
 # 3. 서울 지역 설정 (일본 소유)
 #history/states/386 - Seoul.txt
 state = {
-  id == 386
+  id == 386:
   name = "STATE_SEOUL"
   manpower = 300000
   owner = JAP
