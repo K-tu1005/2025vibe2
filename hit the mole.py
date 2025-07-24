@@ -2,60 +2,70 @@ import streamlit as st
 import random
 import time
 
-st.set_page_config(page_title="두더지 잡기 게임", page_icon="🪓")
+st.set_page_config(page_title="Whack-a-Mole Game", page_icon="🐹")
 
-st.title("🪓 두더지 잡기 게임")
-st.write("랜덤으로 나타나는 두더지를 제한 시간 내에 클릭해서 잡으세요!")
+st.title("🐹 Whack-a-Mole Game")
+st.write("Click the mole before it disappears!")
 
-# 게임 세팅
+# 게임 설정
 GRID_SIZE = 3
-GAME_DURATION = 20  # 초
-MOLE_DURATION = 1.0  # 두더지가 한 칸에 머무는 시간(초)
+GAME_DURATION = 20  # seconds
+MOLE_DURATION = 1.0  # seconds per mole
 
 # 세션 상태 초기화
-if "start_time" not in st.session_state:
-    st.session_state.start_time = None
+if "game_running" not in st.session_state:
+    st.session_state.game_running = False
+    st.session_state.start_time = 0.0
     st.session_state.score = 0
     st.session_state.mole_position = (0, 0)
     st.session_state.last_mole_time = 0.0
 
-# 게임 시작 버튼
-if st.button("게임 시작"):
+# 게임 시작 함수
+def start_game():
+    st.session_state.game_running = True
     st.session_state.start_time = time.time()
     st.session_state.score = 0
-    st.experimental_rerun()
+    st.session_state.mole_position = (random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1))
+    st.session_state.last_mole_time = time.time()
 
-# 게임 중일 때
-if st.session_state.start_time:
+# 게임 종료 함수
+def end_game():
+    st.session_state.game_running = False
+
+# 시작 버튼
+if not st.session_state.game_running:
+    if st.button("🎮 Start Game"):
+        start_game()
+
+# 게임 실행 중일 때
+if st.session_state.game_running:
     elapsed = time.time() - st.session_state.start_time
     remaining = int(GAME_DURATION - elapsed)
 
     if remaining > 0:
-        st.markdown(f"⏰ 남은 시간: `{remaining}초` &nbsp;&nbsp;&nbsp; 🎯 점수: `{st.session_state.score}`")
-        
-        # 두더지 위치 갱신
+        st.markdown(f"⏱️ **Time Left:** `{remaining}` seconds &nbsp;&nbsp;&nbsp; 🎯 **Score:** `{st.session_state.score}`")
+
+        # 두더지 위치 갱신 (MOLE_DURATION이 지났을 때)
         if time.time() - st.session_state.last_mole_time > MOLE_DURATION:
-            row = random.randint(0, GRID_SIZE - 1)
-            col = random.randint(0, GRID_SIZE - 1)
-            st.session_state.mole_position = (row, col)
+            st.session_state.mole_position = (
+                random.randint(0, GRID_SIZE - 1),
+                random.randint(0, GRID_SIZE - 1)
+            )
             st.session_state.last_mole_time = time.time()
 
-        # 버튼 그리드
+        # 버튼 그리드 출력
         for i in range(GRID_SIZE):
             cols = st.columns(GRID_SIZE)
             for j in range(GRID_SIZE):
                 if (i, j) == st.session_state.mole_position:
-                    if cols[j].button("두더지!", key=f"{i}-{j}-{time.time()}"):
+                    if cols[j].button("🐹", key=f"mole-{i}-{j}-{time.time()}"):
                         st.session_state.score += 1
-                        st.session_state.last_mole_time = 0  # 다음 두더지를 빠르게 띄우기 위해
+                        st.session_state.last_mole_time = 0.0  # 즉시 새 두더지
                 else:
-                    cols[j].button(" ", key=f"{i}-{j}-empty")
+                    cols[j].button(" ", key=f"empty-{i}-{j}-{time.time()}")
     else:
-        st.success(f"⏱️ 게임 종료! 최종 점수: `{st.session_state.score}`점")
-        if st.button("다시 하기"):
-            st.session_state.start_time = None
-            st.session_state.score = 0
-            st.session_state.mole_position = (0, 0)
-            st.experimental_rerun()
-else:
-    st.info("👆 위의 '게임 시작' 버튼을 눌러주세요!")
+        # 게임 종료
+        end_game()
+        st.success(f"⏱️ Time's up! Final Score: `{st.session_state.score}`")
+        if st.button("🔁 Play Again"):
+            start_game()
